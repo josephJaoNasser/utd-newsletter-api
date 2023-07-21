@@ -1,10 +1,6 @@
 const { Schema, model } = require("mongoose");
 
 const UserSchema = new Schema({
-  mailchimpAccounts: {
-    type: Array,
-    default: () => [],
-  },
   userId: {
     type: Number,
     required: [true, "UP-TO-DATE User ID is required"],

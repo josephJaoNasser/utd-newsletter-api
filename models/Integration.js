@@ -6,7 +6,7 @@ const IntegrationSchema = new Schema({
     required: [true, "Please provide a valid user ID"],
     ref: "User",
   },
-  integrationType: {
+  service: {
     type: String,
     required: [true, "Please specify the service provider of this integration"],
   },

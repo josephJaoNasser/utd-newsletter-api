@@ -23,7 +23,7 @@ function useMailchimpPassport() {
           const integrationData = {
             userId,
             utdId,
-            integrationType: IntegrationServices.mailchimp,
+            service: IntegrationServices.mailchimp,
             payload: {
               accessToken,
               refreshToken,
