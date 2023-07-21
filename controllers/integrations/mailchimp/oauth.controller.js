@@ -7,9 +7,7 @@ const AuthenticationMiddleware = require("@/middleware/authentication");
 
 class MailchimpOauthController extends WebController {
   constructor() {
-    super("/oauth", HttpMethod.GET, [
-      // AuthenticationMiddleware
-    ]);
+    super("/oauth", HttpMethod.GET, [AuthenticationMiddleware]);
   }
 
   async handler(req, res) {
