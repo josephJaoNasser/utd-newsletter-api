@@ -4,6 +4,7 @@ const WebController = require("@/www/WebController");
 const HttpMethod = require("@/constants/HttpMethod");
 const User = require("@/models/User");
 const jwt = require("jsonwebtoken");
+const { encryptText } = require("@/utils/encryption");
 
 class AuthController extends WebController {
   constructor() {
@@ -49,6 +50,7 @@ class AuthController extends WebController {
           emailAddress: utdUser.data.email,
           roleId,
           timezone,
+          token: encryptText(utdUser.token),
         });
       }
 
