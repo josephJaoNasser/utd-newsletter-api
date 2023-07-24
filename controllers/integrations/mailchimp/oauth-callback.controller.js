@@ -14,14 +14,14 @@ class CreateIntegrationController extends WebController {
 
   async handler(req, res) {
     try {
-      const { uid, mini } = JSON.parse(req.query.state);
+      const { uid, direct, mini } = JSON.parse(req.query.state);
       const user = await User.findById(uid);
       const token = decryptText(user.token);
       const { OAUTH_SUCCESS_URL, OAUTH_SUCCESS_URL_MINI } = process.env;
 
       let successUrl = mini ? OAUTH_SUCCESS_URL_MINI : OAUTH_SUCCESS_URL;
 
-      if (mini) {
+      if (direct) {
         successUrl += `?uid=${uid}&access_token=${token}`;
       }
 

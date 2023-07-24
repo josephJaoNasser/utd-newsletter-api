@@ -11,8 +11,18 @@ class MailchimpOauthController extends WebController {
   }
 
   async handler(req, res) {
-    if (!req.query.userId?.length) {
+    if (!req.query.userId?.length && req.query.direct !== "true") {
       return res.status(401).send(failed("UTD user ID not provided"));
+    }
+
+    if (req.query.direct === "true") {
+      passport.authenticate("mailchimp", {
+        state: JSON.stringify({
+          mini: req.query.mini === "true",
+          direct: true,
+        }),
+      })(req, res);
+      return;
     }
 
     try {
@@ -34,7 +44,6 @@ class MailchimpOauthController extends WebController {
         state: JSON.stringify({
           utdId: user.userId,
           uid: user._id,
-          mini: req.query.mini === "true",
         }),
       })(req, res);
     } catch (e) {

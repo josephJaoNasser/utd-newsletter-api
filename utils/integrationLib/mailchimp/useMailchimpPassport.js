@@ -1,5 +1,6 @@
 const IntegrationServices = require("@/constants/IntegrationServices");
 const Integration = require("@/models/Integration");
+const User = require("@/models/User");
 const passport = require("passport");
 const MailchimpStrategy = require("passport-mailchimp").Strategy;
 
@@ -31,10 +32,32 @@ function useMailchimpPassport() {
             },
           };
 
+          // direct is used for logins only
+          if (stateJson.direct) {
+            const { id } = profile;
+            const userIntegration = await Integration.findOne({
+              "payload.profile.id": id,
+            });
+
+            if (!userIntegration)
+              return done(null, false, { message: "Integration not found" });
+
+            const user = await User.findById(userIntegration.userId);
+
+            if (!user) return done(null, false, { message: "User not found" });
+
+            stateJson.uid = user._id.toString();
+            stateJson.utdId = user.userId;
+            req.query.state = JSON.stringify(stateJson);
+
+            return done(null, { integration: userIntegration, user });
+          }
+
+          // non direct
+          const user = await User.findById(userId);
           const userIntegrations = await Integration.find({
             userId,
           });
-
           const duplicateIntegration = userIntegrations.find(
             (integration) => integration.payload.profile.id === profile.id
           );
@@ -45,13 +68,13 @@ function useMailchimpPassport() {
               integrationData,
               { new: true }
             );
-            return done(null, updatedIntegration);
+            return done(null, { integration: updatedIntegration, user });
           }
 
           const newIntegration = new Integration(integrationData);
           const createdIntegration = await newIntegration.save();
 
-          return done(null, createdIntegration);
+          return done(null, { integration: createdIntegration, user });
         } catch (e) {
           console.log(e);
           return done(null, false, { message: "Error while linking user" });
