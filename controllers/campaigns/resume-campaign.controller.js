@@ -32,7 +32,7 @@ class ResumeCampaignController extends WebController {
 
       return res
         .status(200)
-        .json(`RSS Campaign ${campaignId} has been resumed`);
+        .json(success(`RSS Campaign ${campaignId} has been resumed`));
     } catch (err) {
       console.error(err);
       return res.status(getErrorCode(err)).json(failed(err));

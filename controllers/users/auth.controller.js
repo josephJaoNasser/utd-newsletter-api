@@ -4,7 +4,8 @@ const WebController = require("@/www/WebController");
 const HttpMethod = require("@/constants/HttpMethod");
 const User = require("@/models/User");
 const jwt = require("jsonwebtoken");
-const { encryptText } = require("@/utils/encryption");
+const Integration = require("@/models/Integration");
+const IntegrationServices = require("@/constants/IntegrationServices");
 
 class AuthController extends WebController {
   constructor() {
@@ -37,11 +38,10 @@ class AuthController extends WebController {
         timezone,
       } = utdUser.data;
 
-      const user = await User.findOne({ userId: id.toString() });
-      let createdUser;
+      let user = await User.findOne({ userId: id.toString() });
 
       if (!user) {
-        createdUser = await User.create({
+        user = await User.create({
           userId: id.toString(),
           firstName,
           lastName,
@@ -50,7 +50,6 @@ class AuthController extends WebController {
           emailAddress: utdUser.data.email,
           roleId,
           timezone,
-          token: encryptText(utdUser.token),
         });
       }
 
@@ -61,9 +60,15 @@ class AuthController extends WebController {
         JWT_SECRET_TOKEN
       );
 
-      res.status(200).json(
+      const mailchimpAccounts = await Integration.find({
+        userId: user._id,
+        service: IntegrationServices.mailchimp,
+      });
+
+      return res.status(200).json(
         success({
-          user: createdUser || user,
+          user,
+          mailchimpAccounts,
           token,
         })
       );

@@ -3,11 +3,10 @@ const AuthenticationMiddleware = require("@/middleware/authentication");
 const verifyIntegration = require("@/middleware/verifyIntegration");
 const { failed, getErrorCode, success } = require("@/utils/response");
 const WebController = require("@/www/WebController");
-const { default: axios } = require("axios");
 
-class GetAllCampaignsController extends WebController {
+class IndexController extends WebController {
   constructor() {
-    super("/", HttpMethod.GET, [
+    super("/:id", HttpMethod.GET, [
       AuthenticationMiddleware,
       verifyIntegration.mailchimp,
     ]);
@@ -18,10 +17,9 @@ class GetAllCampaignsController extends WebController {
       const { profile } = res.locals.integration.payload;
       const { accessToken, api_endpoint } = profile;
       const { MAILCHIMP_API_VERSION } = process.env;
-      const parsedQueries = new URLSearchParams(req.query).toString();
 
-      const { data: campaigns } = await axios.get(
-        `${api_endpoint}/${MAILCHIMP_API_VERSION}/campaigns?${parsedQueries}`,
+      const mailchimpLists = await axios.get(
+        `${api_endpoint}/${MAILCHIMP_API_VERSION}/lists`,
         {
           headers: {
             Authorization: "Bearer " + accessToken,
@@ -29,7 +27,22 @@ class GetAllCampaignsController extends WebController {
         }
       );
 
-      return res.status(200).json(success({ ...campaigns }));
+      const listId = mailchimpLists.data.lists[0].id;
+
+      const subscriberDetails = await axios.get(
+        `${apiEndpoint}/lists/${listId}/members/${req.params.id}`,
+        {
+          headers: {
+            Authorization: bearerToken,
+          },
+        }
+      );
+
+      return res.status(200).json(
+        success({
+          subscriber: subscriberDetails.data,
+        })
+      );
     } catch (err) {
       console.error(err);
       return res.status(getErrorCode(err)).json(failed(err));
@@ -37,4 +50,4 @@ class GetAllCampaignsController extends WebController {
   }
 }
 
-module.exports = new GetAllCampaignsController();
+module.exports = new IndexController();

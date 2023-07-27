@@ -33,5 +33,8 @@ const ScheduledCampaignsSchema = new Schema({
   timewarp: Boolean,
 });
 
-const ScheduledCampaigns = model("Template", ScheduledCampaignsSchema);
+const ScheduledCampaigns = model(
+  "ScheduledCampaigns",
+  ScheduledCampaignsSchema
+);
 module.exports = ScheduledCampaigns;

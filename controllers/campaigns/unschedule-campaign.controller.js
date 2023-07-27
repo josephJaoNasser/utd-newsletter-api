@@ -22,7 +22,7 @@ class UnscheduleCampaignController extends WebController {
         campaign_id: campaignId,
       });
 
-      if (scheduledCampaigns?.length) {
+      if (!scheduledCampaigns?.length) {
         return res
           .status(200)
           .json(

@@ -34,7 +34,7 @@ class UpdateCampaignController extends WebController {
         `${api_endpoint}/${MAILCHIMP_API_VERSION}/lists/${updatedCampaign.recipients.list_id}/segments`,
         {
           headers: {
-            Authorization: bearerToken,
+            Authorization: "Bearer " + accessToken,
           },
         }
       );
@@ -62,7 +62,7 @@ class UpdateCampaignController extends WebController {
         `${api_endpoint}/${MAILCHIMP_API_VERSION}/campaigns/${campaignId}/content`,
         {
           headers: {
-            Authorization: bearerToken,
+            Authorization: "Bearer " + accessToken,
           },
         }
       );

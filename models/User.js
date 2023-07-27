@@ -33,7 +33,6 @@ const UserSchema = new Schema({
     type: String,
     required: [true, "Please provide a timezone"],
   },
-  token: String,
 });
 
 const User = model("User", UserSchema);

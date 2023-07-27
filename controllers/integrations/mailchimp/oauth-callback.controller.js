@@ -8,24 +8,34 @@ const passport = require("passport");
 class CreateIntegrationController extends WebController {
   constructor() {
     super("/oauth/callback", HttpMethod.GET, [
-      passport.authenticate("mailchimp", { failureRedirect: "/" }),
+      passport.authenticate("mailchimp", {
+        failureRedirect: "/?success=false&prompt_mailchimp=true",
+      }),
     ]);
   }
 
   async handler(req, res) {
     try {
       const { uid, direct, mini } = JSON.parse(req.query.state);
-      const user = await User.findById(uid);
-      const token = decryptText(user.token);
+      const { integration, user } = req.session.passport.user;
       const { OAUTH_SUCCESS_URL, OAUTH_SUCCESS_URL_MINI } = process.env;
+      let query = {
+        uid,
+      };
 
       let successUrl = mini ? OAUTH_SUCCESS_URL_MINI : OAUTH_SUCCESS_URL;
 
       if (direct) {
-        successUrl += `?uid=${uid}&access_token=${token}`;
+        const token = decryptText(user.token);
+        query.token = token;
       }
 
-      return res.redirect(`${successUrl}`);
+      query.mailchimpToken = integration.payload.accessToken;
+      query.mailchimpId = integration.payload.profile.id;
+
+      const parsedQuery = "?" + new URLSearchParams(query).toString();
+
+      return res.redirect(`${successUrl}${parsedQuery}`);
     } catch (err) {
       console.error(err);
       return res.status(getErrorCode(err)).json(failed(err));

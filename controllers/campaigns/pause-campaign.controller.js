@@ -32,7 +32,7 @@ class PauseCampaignController extends WebController {
 
       return res
         .status(200)
-        .json(`RSS Campaign ${campaignId} has been paused`);
+        .json(success(`RSS Campaign ${campaignId} has been paused`));
     } catch (err) {
       console.error(err);
       return res.status(getErrorCode(err)).json(failed(err));
